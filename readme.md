@@ -1,101 +1,57 @@
 # SimpleDynProp
 
- (C) Copyright 2023 by Autodesk, Inc.
+(C) Copyright 2023 by Autodesk, Inc.
 
+## Overview
+SimpleDynProp is a sample implementation demonstrating the use of `IDynamicProperty`, `ICategorizedProperty`, and `IEnumProperty` to create dynamic properties in the Object Property Manager (OPM) of AutoCAD.
 
+## Contents
+- [Abstract](#abstract)
+- [Build Instructions](#build-instructions)
+- [How It Works](#how-it-works)
 
- Implementation showing IDynamicProperty, ICategorizedProperty, IEnumProperty
+## Abstract
+This sample illustrates how to define dynamic properties for objects in AutoCAD’s Object Property Manager (OPM). Dynamic properties provide additional attributes beyond the static properties of an object, making them useful for customization and extended metadata storage.
 
+## Build Instructions
+1. Open `SimpleDynProps.vcxproj` in Visual Studio 2022 or later.
+2. Configure the project to include ObjectARX SDK paths (both include and library directories).
+3. Ensure the target platform is set to **x64**.
+4. Build the project via **Build > Build SimpleDynProps.arx**.
 
+## How It Works
+### Dynamic Properties in OPM
+The OPM displays both static and dynamic properties for objects. Dynamic properties allow for additional, programmable attributes stored in an `AcDbXrecord` within the extension dictionary of an entity.
 
-## Contents:
-
-=========
-
-1\. Abstract
-
-2\. Build Instructions
-
-3\. How it works, What it shows
-
-
-
-### 1.Abstract
-
-==========
-
-This sample shows how to create dynamic properties in the Object Property Manager of AutoCAD.
-
-### 2\. Build Instructions
-
-=====================
-
-1\. Load SimpleDynProps.vcxproj into Visual Studio 2022 or later.
-
-2\. Add ObjectARX SDK include and library paths to the project settings.
-
-3\. Ensure that the project is set to build for the desired platform (x64).
-
-4\. Build the project (Build/Build SimpleDynProps.arx).
-
-### 3\. How it works, What it shows
-
-==============================
-
-OPM can show so-called dynamic properties in addition to the "static" properties of
-
-an object. Dynamic properties can be used for many different purposes. In this example,
-
-we have three properties that show three values stored in an AcDbXrecord that resides
-
-in the extension dictionary of an entity.
-
-The following figure shows this scenario:
-
-```shell
+The following structure represents this hierarchy:
+```
 AcDbEntity
-
-|_ AcDbDictionary
-
-       |_ AcDbXrecord (double, double, long)
+    ├── AcDbDictionary
+          ├── AcDbXrecord (double, double, long)
 ```
 
+### COM-based Dynamic Properties
+Dynamic properties are implemented as COM objects that must at least support the `IDynamicProperty` interface. Additional interfaces refine how the properties appear in OPM. This sample leverages **ATL (Active Template Library)** to simplify COM implementation.
 
+### Implemented Properties
+This sample demonstrates three types of dynamic properties:
+1. **Simple Property** (`SimpleProperty.h`, `SimpleProperty.cpp`)
+   - Implements `IDynamicProperty`.
+2. **Categorized Property** (`CategorizedProperty.h`, `CategorizedProperty.cpp`)
+   - Implements `IDynamicProperty` and `ICategorizeProperties`.
+3. **Enumerated Property** (`EnumProperty.h`, `EnumProperty.cpp`)
+   - Implements `IDynamicProperty`, `ICategorizeProperties`, and `IEnumProperty`.
 
-Dynamic properties are COM objects that implement at least the IDynamicProperty interface.
+### Document Locking in OPM
+Since OPM is a modeless interface, document locking is required to access and modify drawing objects safely.
 
-(There are other interfaces that can flavor how the dynamic property is shown in OPM.)
+### Usage Instructions
+1. Load `SimpleDynProps.arx` in AutoCAD.
+2. Open the Object Property Manager (use the `modify` command).
+3. Draw any entity.
+4. Use the `assigndata` command to assign an `AcDbXrecord` to the entity.
+5. Click on the entity to view its dynamic properties.
+6. Modify the values directly in OPM to update the `Xrecord` data.
 
-Since the sample has to implement a COM object, it uses ATL (Microsoft Active Template
+This sample provides a foundation for extending object properties dynamically in AutoCAD, allowing developers to customize behavior and metadata efficiently.
 
-Library) to simplify the process.
-
-The sample currently shows three properties:
-
-1\. A simple property (SimpleProperty.h, SimpleProperty.cpp). This implements
-
-   IDyanamicProperty alone.
-
-2\. A categorized property (`CategorizedProperty.h`, `CategorizedProperty.cpp`).
-
-   This implements `IDynamicProperty` and `ICategorizeProperties`.
-
-3\. An enumerated property (Enumproperty.h, EnumProperty.cpp). This implements
-
-   `IDynamicProperty`, `ICategorizeProperties` and `IEnumProperty`.
-
-Since the OPM is a modeless user interface, the sample shows the document locking step necessary to access the drawing.
-
-Here are the steps to try the sample:
-
-1\. Load SimpleDynProps.arx.
-
-2\. Bring up OPM (modify command).
-
-3\. Draw any entity.
-
-4\. Use the assigndata command to assign the xrecord to the entity.
-
-5\. Click on the entity to see its properties.
-
-6\. Change the values in the xrecord through the dynamic properties.
